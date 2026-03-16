@@ -1,8 +1,484 @@
-<html>
-  <head>
-    
-  </head>
-  <body>
-    <h1>Hello</h1>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>@username — dev</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f5f0;
+      --grey: #1a1a1a;
+      --mid: #2e2e2e;
+      --muted: #888;
+      --accent: #f5f5f0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Space Mono', monospace;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      position: fixed;
+      width: 12px; height: 12px;
+      background: var(--white);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width .15s, height .15s, background .15s;
+      mix-blend-mode: difference;
+    }
+    .cursor.expand { width: 40px; height: 40px; }
+
+    /* Noise overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: .4;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 4rem;
+      position: relative;
+      border-bottom: 1px solid var(--mid);
+    }
+
+    .hero-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: .7rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp .6s .2s forwards;
+    }
+
+    .hero-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(3.5rem, 12vw, 10rem);
+      line-height: .92;
+      letter-spacing: -.03em;
+      opacity: 0;
+      animation: fadeUp .7s .35s forwards;
+    }
+
+    .hero-name span {
+      display: block;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--white);
+    }
+
+    .hero-sub {
+      margin-top: 2.5rem;
+      font-size: .8rem;
+      color: var(--muted);
+      max-width: 380px;
+      line-height: 1.8;
+      opacity: 0;
+      animation: fadeUp .7s .5s forwards;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      right: 4rem; bottom: 4rem;
+      font-size: .65rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      writing-mode: vertical-rl;
+      opacity: 0;
+      animation: fadeUp .7s .7s forwards;
+    }
+
+    .hero-scroll::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 60px;
+      background: var(--mid);
+      margin: .8rem auto 0;
+    }
+
+    /* ── SOCIALS ── */
+    .socials-bar {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 2rem 4rem;
+      border-bottom: 1px solid var(--mid);
+    }
+
+    .socials-label {
+      font-size: .65rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-right: .5rem;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .55rem 1.1rem;
+      border: 1px solid var(--mid);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .7rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      transition: all .25s;
+    }
+
+    .social-link:hover {
+      border-color: var(--white);
+      color: var(--white);
+      background: var(--grey);
+    }
+
+    .social-link svg { flex-shrink: 0; }
+
+    /* ── SECTION WRAPPER ── */
+    section { padding: 5rem 4rem; }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .section-num {
+      font-size: .65rem;
+      letter-spacing: .2em;
+      color: var(--muted);
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      letter-spacing: -.02em;
+    }
+
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: var(--mid);
+    }
+
+    /* ── ABOUT ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+    }
+
+    .about-text p {
+      font-size: .85rem;
+      line-height: 1.9;
+      color: #aaa;
+      margin-bottom: 1.2rem;
+    }
+
+    .about-text p strong { color: var(--white); }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--mid);
+      border: 1px solid var(--mid);
+      align-self: start;
+    }
+
+    .stat {
+      background: var(--black);
+      padding: 2rem;
+    }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 2.5rem;
+      display: block;
+      letter-spacing: -.03em;
+    }
+
+    .stat-label {
+      font-size: .65rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: .3rem;
+      display: block;
+    }
+
+    /* ── PROJECTS ── */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1px;
+      background: var(--mid);
+      border: 1px solid var(--mid);
+    }
+
+    .project-card {
+      background: var(--black);
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      transition: background .25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--grey);
+      transform: translateY(100%);
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
+    }
+
+    .project-card:hover::before { transform: translateY(0); }
+
+    .project-card > * { position: relative; z-index: 1; }
+
+    .project-tag {
+      font-size: .6rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .project-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.3rem;
+      letter-spacing: -.02em;
+    }
+
+    .project-desc {
+      font-size: .78rem;
+      line-height: 1.8;
+      color: #888;
+      flex: 1;
+    }
+
+    .project-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 1.2rem;
+      border-top: 1px solid var(--mid);
+    }
+
+    .project-stack {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      font-size: .6rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      border: 1px solid var(--mid);
+      padding: .3rem .6rem;
+      color: var(--muted);
+    }
+
+    .project-link {
+      color: var(--white);
+      text-decoration: none;
+      font-size: .65rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      opacity: 0;
+      transform: translateX(-8px);
+      transition: opacity .25s .1s, transform .25s .1s;
+    }
+
+    .project-card:hover .project-link {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--mid);
+      padding: 2.5rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: .65rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity .7s, transform .7s;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .hero, section, .socials-bar, footer { padding: 2.5rem 1.5rem; }
+      .hero-scroll { display: none; }
+      .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+
+  <!-- ── HERO ── -->
+  <section class="hero" style="padding-bottom:5rem">
+    <p class="hero-tag">// game developer </p>
+    <h1 class="hero-name">
+      ren<span>@renkore</span>
+    </h1>
+    <p class="hero-sub">
+      Primarily a Game Developer on Roblox.<br/>
+      Focusing both on Back-End and Front-End.
+    </p>
+    <span class="hero-scroll">scroll</span>
+  </section>
+
+  <!-- ── SOCIALS ── -->
+  <div class="socials-bar">
+    <span class="socials-label">Find me on</span>
+
+    <!-- Twitter / X -->
+    <a class="social-link" href="https://x.com/renkore_" target="_blank" rel="noopener">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+      </svg>
+      @renkore_
+    </a>
+
+    <!-- Discord -->
+    <a class="social-link" href="#" rel="noopener">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026c.462-.62.874-1.275 1.226-1.963.021-.04.001-.088-.041-.104a13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028zM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.956 2.38-2.157 2.38zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.946 2.38-2.157 2.38z"/>
+      </svg>
+      renkore
+    </a>
+
+    <!-- GitHub -->
+    <a class="social-link" href="https://github.com/rentoggle" target="_blank" rel="noopener">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+      </svg>
+      github
+    </a>
+  </div>
+
+  <!-- ── ABOUT ── -->
+  <section id="about">
+    <div class="section-header reveal">
+      <span class="section-num">01</span>
+      <h2 class="section-title">About</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="about-grid reveal">
+      <div class="about-text">
+        <p>Hey - I'm <strong>ren</strong>. A game developer that works primarily on Roblox Games.</p>
+        <p>I do both <strong>Front-End</strong> and <strong>Back-End</strong>, primarily focusing on balancing the both. Though I prefer working on Back-End myself.</p>
+        <p>Though I do not have much to show right now, I will be updating this website the more projects and games I release or collaborate on.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PROJECTS ── -->
+  <section id="projects" style="padding-top:0">
+    <div class="section-header reveal">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Projects</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="projects-grid reveal">
+
+      <div class="project-card">
+        <span class="project-tag">// Roblox Game</span>
+        <h3 class="project-title">Elixir</h3>
+        <p class="project-desc">A RPG game on Roblox that is primarily a JoJo and Persona game at once. It's a In-Dev game, no release date planned.</p>
+        <div class="project-footer">
+          <div class="project-stack">
+            <span class="chip">Roblox</span>
+          </div>
+          <a class="project-link" href="https://discord.gg/g8aVTtbUTv">
+            Game Discord
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M7 17L17 7M17 7H7M17 7v10"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <span>© 2026 @renkore</span>
+    <span>built with claude &amp; desperation</span>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
+    });
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('expand'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('expand'));
+    });
+
+    // Scroll reveal
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
 </html>
